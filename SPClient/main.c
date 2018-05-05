@@ -31,7 +31,7 @@ int main (int argc, char *argv[]){
         char recvBuff[1024];
         struct sockaddr_in serv_addr;
         
-        char buff[1000];
+        char buff[2000];
         
         printf("write server IP:Port \n");
         ssize_t count = read(0, buff,  100);
@@ -82,6 +82,11 @@ int main (int argc, char *argv[]){
             continue;
         }
         
+        ssize_t cli = write(STDOUT_FILENO, "connected\n", strlen("connected\n"));
+        if(cli == -1){
+            perror("client on console");
+        }
+        
         //    ssize_t rr = read(sockfd, buff, 1000);
         //    if(rr == -1){
         //        perror("read from socket");
@@ -91,18 +96,17 @@ int main (int argc, char *argv[]){
         //        perror("write to console");
         //    }
         
-        fcntl(sockfd, F_SETFD, FD_CLOEXEC);
         
         pthread_t cTos;
         pthread_create(&cTos, NULL, clientToServer, (void*) &sockfd);
         
         while(0==0){
             
-            char buff[1000];
+            char buff[2000];
             
             
             
-            ssize_t r2 = read(sockfd, buff, 1000);
+            ssize_t r2 = read(sockfd, buff, 2000);
             if(r2 == -1){
                 perror("read from fd2[0]");
                 continue;
@@ -122,7 +126,7 @@ int main (int argc, char *argv[]){
             
             int count = client(buff, r2);
             
-            ssize_t w2 = write(STDOUT_FILENO, "\nserver:~ ", sizeof("\nserver:~ "));
+            ssize_t w2 = write(STDOUT_FILENO, "server:~ ", sizeof("server:~ "));
             if(w2 == -1){
                 perror("write on console");
             }
@@ -130,6 +134,11 @@ int main (int argc, char *argv[]){
             ssize_t w3 = write(STDOUT_FILENO, buff, count);
             if(w3 == -1){
                 perror("write on console");
+            }
+            
+            ssize_t cli = write(STDOUT_FILENO, "~ ", strlen("~ "));
+            if(cli == -1){
+                perror("client on console");
             }
         }
     }
@@ -141,14 +150,14 @@ void* clientToServer(void* sock ){
     int sockfd = *(int*) sock;
     
     while(0==0){
-        char buff[1000];
+        char buff[2000];
         
-        ssize_t cli = write(STDOUT_FILENO, "client:~ ", strlen("client:~ "));
-        if(cli == -1){
+        ssize_t li = write(STDOUT_FILENO, "~ ", strlen("~ "));
+        if(li == -1){
             perror("client on console");
-            continue;
         }
-        ssize_t r1 = read(STDIN_FILENO, buff, 1000);
+
+        ssize_t r1 = read(STDIN_FILENO, buff, 2000);
         if(r1 == -1){
             perror("read from console");
             continue;
@@ -173,7 +182,7 @@ void* clientToServer(void* sock ){
 
 int client(char* buff, ssize_t size){
     
-//    buff[size] = '\n';
+    buff[size] = '\n';
     
     return (int)size+1;
 }
